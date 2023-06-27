@@ -1,94 +1,141 @@
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios');
 
-//FUNCION: ES LA RUTA ABSOLUTA?
-function isAbsolutePath(filePath) {
-    const currentPath = path.isAbsolute(filePath);
-    return currentPath;
+const initialRoute = 'Dir1/README copy 2.md';
+
+// Función: ¿Es una ruta absoluta?
+function isAbsolutePath(route) {
+  const currentPath = path.isAbsolute(route);
+  return currentPath;
 }
 
-//FUNCION: TRANSFORMAR LA RUTA A ABSOLUTA O DEJARLA IGUAL
+// Función: Transformar la ruta a absoluta o dejarla igual
 function turnOrKeepPath(currentPath) {
-    let absolutePath = '';
+  let absolutePath = '';
 
-    if (path.isAbsolute(currentPath)) {
-        console.log('This path is absolute');
-        absolutePath = currentPath.replace(/\\/g, '/');
-    } else {
-        console.log('This path is relative');
-        absolutePath = path.resolve(__dirname, currentPath).replace(/\\/g, '/');
-    }
+  if (path.isAbsolute(currentPath)) {
+    absolutePath = currentPath.replace(/\\/g, '/');
+  } else {
+    absolutePath = path.resolve(__dirname, currentPath).replace(/\\/g, '/');
+  }
 
-    return absolutePath;
+  return absolutePath;
 }
 
-//FUNCION:  LA RUTA EXISTE?
-function pathExists(absolutePath) {
-    return fs.existsSync(absolutePath);
+const absPath = turnOrKeepPath(initialRoute);
+
+
+// Función: ¿La ruta existe?
+function pathExists(absPath) {
+  return fs.existsSync(absPath);
 }
 
-//FUNCION:  ES UN DIRECTORIO O ES UN ARCHIVO?
-function fileOrDirectory(path) {
-    return fs.statSync(path).isFile();
+
+
+// Función: ¿Es un archivo?
+function isFile(absPath) {
+  return fs.statSync(absPath).isFile();
 }
 
-//FUNCION OBTENER LA EXTENSION DEL ARCHIVO
-function getFileExtension(existingPath) {
-    const extension = path.extname(existingPath);
-    console.log('This is the extension:', extension);
-    return extension;
+// Función: Obtener la extensión del archivo
+function getFileExtension(absPath) {
+  const extension = path.extname(absPath);
+  return extension;
 }
 
-//FUNCION LEER EL ARCHIVO
-function readFile(filePath) {
-    return new Promise((resolve, reject) => {
-        fs.readFile(filePath, 'utf-8', (error, fileContent) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(fileContent);
-            }
-        });
+const fileExt = getFileExtension(absPath);
+
+
+// Función: Leer el archivo
+function readFile(absPath) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(absPath, 'utf-8', (error, fileContent) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(fileContent);
+      }
     });
+  });
 }
 
+// Función: Extraer los links
+function extractLinksFromFile(content, filePath) {
+  const regex = /\[([^\]]+)\]\((http[s]?:\/\/[^\)]+)\)/g;
+  const links = [];
+  let match;
 
+  while ((match = regex.exec(content)) !== null) {
+    const text = match[1];
+    const URL = match[2];
+    links.push({ href: URL, text: text, file: filePath });
+  }
 
-readFile('C:/Users/Samsung/Desktop/Laboratoria/CuartoProyecto/DEV006-md-links/Dir1/README copy 5.md')
-    .then((content) => {
-        console.log('File content:', content);
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
+  return links;
+}
 
-//FUNCION EXTRAER LOS LINKS
+readFile(absPath)
+  .then((content) => {
+    const links = extractLinksFromFile(content, absPath);
+    return validateLinks(links);
+  })
+  .then((validatedLinks) => {
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  });
 
-// function extractLinksFromFile(filePath) {
-//     const fileContent= "(https://es.wikipedia.org/wiki/Markdown) "
-//     const regex = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/g;
-//     const links = [];
-//     let match;
+// Función: Validar links
+function validateLinks(links) {
+  const promises = links.map((link) => {
+    return axios
+      .get(link.href)
+      .then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return {
+            href: link.href,
+            text: link.text,
+            file: link.file,
+            status: response.status,
+            ok: 'ok',
+          };
+        } else {
+          return {
+            href: link.href,
+            text: link.text,
+            file: link.file,
+            status: response.status,
+            ok: 'fail',
+          };
+        }
+      })
+      .catch((error) => {
+        return {
+          href: link.href,
+          text: link.text,
+          file: link.file,
+          status: error.response.status,
+          ok: 'fail',
+        };
+      });
+  });
+
+  return Promise.all(promises); 
+}
+
   
-//     while ((match = regex.exec(fileContent)) !== null) {
-//         const text = match[2];
-//         const URL = match[2];
-//         links.push({ href: URL, text: text, file: filePath });
-//     }
-  
-//     return links;
-// }
-
-// extractLinksFromFile(fileContent, filePath)
-//     .then((links) => {
-//         console.log('Links:', links);
-//     });
-
 
 
 module.exports = {
     isAbsolutePath,
     turnOrKeepPath,
+    pathExists,
+    isFile,
+    getFileExtension,
+    readFile,
+    extractLinksFromFile,
+    validateLinks,
 }
 
 

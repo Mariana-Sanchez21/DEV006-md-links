@@ -1,27 +1,58 @@
-const {isAbsolutePath}= require('./miniFunctions')
-const {turnOrKeepPath}= require('./miniFunctions')
+const { isAbsolutePath,
+  turnOrKeepPath,
+  pathExists,
+  isFile,
+  getFileExtension,
+  readFile,
+  extractLinksFromFile,
+  validateLinks,
+} = require('./miniFunctions');
 
 
-function mdLinks(filePath){
+function mdLinks(filePath, options) {
+  return new Promise(function(resolve, reject) {
+    const absRoute = turnOrKeepPath(filePath);
 
+    if (!pathExists(absRoute)) {
+      reject("Error: La ruta no existe");
+    } else {
+      if (isFile(absRoute)) {
+        const isMdExtension = getFileExtension(absRoute);
+
+        if (isMdExtension !== ".md") {
+          reject("Error: Tu archivo no es Markdown");
+        }
+      }
+
+      readFile(absRoute)
+        .then((content) => {
+          const links = extractLinksFromFile(content, absRoute);
+          if (options && options.validate === false) {
+            resolve(links);
+          } else if (options && options.validate === true) {
+            return validateLinks(links)
+              .then((validatedLinks) => {
+                resolve(validatedLinks);
+              });
+          } else {
+            resolve(links);
+          }
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    }
+  });
 }
 
-//console.log(mdLinks('Dir1/Dir2/Test2'))
+mdLinks(process.argv[2], { validate: false })
+  .then((result) => {
+    console.log(result);
+  })
+  .catch((error) => {
+    console.error("Error:", error);
+  });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// module.exports = () => {
-//   // ...
-// };
+  module.exports = {
+    mdLinks,
+  }
