@@ -1,7 +1,7 @@
 const { turnOrKeepPath,
   getFileExtension,
-  readFile,
  } = require('../miniFunctions');
+ const mdLinks= require ('../index')
 const path = require('path');
 
 //TEST PARA TRANFORMAR UNA RUTA
@@ -28,4 +28,88 @@ describe('getFileExtension', () => {
   });
 });
 
-//TEST PARA LEER EL ARCHIVO
+//TEST PARA MDLINKS
+
+
+describe('mdLinks', () => {
+  it('Should be a function', () => {
+    expect(typeof mdLinks).toEqual('function');
+  });
+});
+
+it('Should return an error when path does not exist', () => {
+  const brokenPath = 'Dir1/README1broken.md';
+  return expect(mdLinks(brokenPath)).rejects.toEqual("Error: La ruta no existe");
+});
+
+
+it('should resolve with validated links when options.validate is true', () => {
+    const absRoute = 'C:/Users/Samsung/Desktop/Laboratoria/CuartoProyecto/DEV006-md-links/Dir1/READMEbroken.md';
+    const options = { validate: true };
+    const resultingArray=
+
+[
+  {
+    href: 'https://curriculum.laboratoria.la/es/topics/javascript/04-arrays',
+    text: 'Arreglos',
+    file: 'C:/Users/Samsung/Desktop/Laboratoria/CuartoProyecto/DEV006-md-links/Dir1/READMEbroken.md',
+    status: 200,
+    ok: 'ok'
+  },
+  {
+    href: 'https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/',
+    text: 'Array - MDN',
+    file: 'C:/Users/Samsung/Desktop/Laboratoria/CuartoProyecto/DEV006-md-links/Dir1/READMEbroken.md',
+    status: 200,
+    ok: 'ok'
+  },
+  {
+    href: 'https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Globakl_Objects/Array/sort',
+    text: 'Array.prototype.sort() - MDN',
+    file: 'C:/Users/Samsung/Desktop/Laboratoria/CuartoProyecto/DEV006-md-links/Dir1/READMEbroken.md',
+    status: 404,
+    ok: 'fail'
+  },
+  {
+    href: 'https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach',
+    text: 'Array.prototype.forEach() - MDN',
+    file: 'C:/Users/Samsung/Desktop/Laboratoria/CuartoProyecto/DEV006-md-links/Dir1/READMEbroken.md',
+    status: 200,
+    ok: 'ok'
+  },
+  {
+    href: 'https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/map',
+    text: 'Array.prototype.map() - MDN',
+    file: 'C:/Users/Samsung/Desktop/Laboratoria/CuartoProyecto/DEV006-md-links/Dir1/READMEbroken.md',
+    status: 200,
+    ok: 'ok'
+  },
+  {
+    href: 'https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/filter',
+    text: 'Array.prototype.filter() - MDN',
+    file: 'C:/Users/Samsung/Desktop/Laboratoria/CuartoProyecto/DEV006-md-links/Dir1/READMEbroken.md',
+    status: 200,
+    ok: 'ok'
+  },
+  {
+    href: 'https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/jArray/Reduce',
+    text: 'Array.prototype.reduce() - MDN',
+    file: 'C:/Users/Samsung/Desktop/Laboratoria/CuartoProyecto/DEV006-md-links/Dir1/READMEbroken.md',
+    status: 404,
+    ok: 'fail'
+  }
+]
+
+    return expect(mdLinks(absRoute, options)).resolves.toEqual(resultingArray);
+      
+    });
+
+    it('Should return empty array when there are no links', () => {
+      const noLinksPath = 'Dir1/READMEnolinks.md';
+      return expect(mdLinks(noLinksPath)).resolves.toEqual([]);
+    });
+
+    it('Should return an error when the file is not .md', () => {
+      const notMdFile = 'Dir1/Test1.html';
+      return expect(mdLinks(notMdFile)).rejects.toEqual("Error: Tu archivo no es Markdown");
+    });

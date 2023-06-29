@@ -45,7 +45,7 @@ function mdLinks(filePath, options) {
   });
 }
 
-mdLinks(process.argv[2], { validate: false })
+mdLinks(process.argv[2], { validate: true })
   .then((result) => {
     console.log(result);
   })
@@ -53,6 +53,4 @@ mdLinks(process.argv[2], { validate: false })
     console.error("Error:", error);
   });
 
-  module.exports = {
-    mdLinks,
-  }
+  module.exports = mdLinks;
