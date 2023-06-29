@@ -1,8 +1,15 @@
 const { turnOrKeepPath,
   getFileExtension,
+  readFile,
  } = require('../miniFunctions');
  const mdLinks= require ('../index')
 const path = require('path');
+const fs= require ('fs')
+const axios= require('axios')
+
+// jest.mock('axios'), ()=>({
+//   get: (href)=>promiseHooks.resolve({status:400})
+// });
 
 //TEST PARA TRANFORMAR UNA RUTA
 describe('turnOrKeepPath', () => {
@@ -28,6 +35,26 @@ describe('getFileExtension', () => {
   });
 });
 
+//TEST PARA LEER UN ARCHIVO
+describe('readFile', () => {
+  it('should return the content of the file', (done) => {
+    const absPath = 'Dir1/pruebadecontenido.md';
+    const expectedContent = 'Esta es una prueba para leer contenido';
+    
+
+    readFile(absPath)
+      .then((content) => {
+       
+        expect(content.trim()).toEqual(expectedContent);
+        done();
+      })
+      .catch((error) => {
+        done(error);
+      });
+  });
+});
+
+
 //TEST PARA MDLINKS
 
 
@@ -37,14 +64,14 @@ describe('mdLinks', () => {
   });
 });
 
-it('Should return an error when path does not exist', () => {
+it('should return an error when path does not exist', () => {
   const brokenPath = 'Dir1/README1broken.md';
   return expect(mdLinks(brokenPath)).rejects.toEqual("Error: La ruta no existe");
 });
 
 
 it('should resolve with validated links when options.validate is true', () => {
-    const absRoute = 'C:/Users/Samsung/Desktop/Laboratoria/CuartoProyecto/DEV006-md-links/Dir1/READMEbroken.md';
+    const route = 'Dir1/READMEbroken.md';
     const options = { validate: true };
     const resultingArray=
 
@@ -100,7 +127,7 @@ it('should resolve with validated links when options.validate is true', () => {
   }
 ]
 
-    return expect(mdLinks(absRoute, options)).resolves.toEqual(resultingArray);
+    return expect(mdLinks(route, options)).resolves.toEqual(resultingArray);
       
     });
 
