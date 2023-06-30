@@ -30,13 +30,18 @@ describe('getFileExtension', () => {
 
 // TEST PARA LEER UN ARCHIVO
 describe('readFile', () => {
-  it('Should return the content of the file', async () => {
+  it('Should return the content of the file', (done) => {
     const absPath = 'Dir1/pruebadecontenido.md';
     const expectedContent = 'Esta es una prueba para leer contenido';
 
-    const content = await readFile(absPath);
-
-    expect(content.trim()).toEqual(expectedContent);
+    readFile(absPath)
+      .then((content) => {
+        expect(content.trim()).toEqual(expectedContent);
+        done();
+      })
+      .catch((error) => {
+        done(error);
+      });
   });
 });
 
@@ -51,10 +56,10 @@ describe('mdLinks', () => {
     return expect(mdLinks(brokenPath)).rejects.toEqual("Error: La ruta no existe");
   });
 
-  it('Should resolve with validated links when options.validate is true', async () => {
+  it('Should resolve with validated links when options.validate is true', (done) => {
     const route = 'Dir1/READMEunLink.md';
     const options = { validate: true };
-
+  
     // Mock axios
     jest.mock('axios', () => ({
       get: jest.fn((href) => {
@@ -65,7 +70,7 @@ describe('mdLinks', () => {
         return Promise.reject(new Error('Not Found'));
       })
     }));
-
+  
     const resultingArray = [
       {
         href: 'https://es.wikipedia.org/wiki/Markdown',
@@ -75,19 +80,29 @@ describe('mdLinks', () => {
         ok: 'ok'
       }
     ];
-
-    const result = await mdLinks(route, options);
-
-    expect(result).toEqual(resultingArray);
+  
+    mdLinks(route, options)
+      .then((result) => {
+        expect(result).toEqual(resultingArray);
+        done();
+      })
+      .catch((error) => {
+        done(error);
+      });
   });
-
-  it('Should return an empty array when there are no links', async () => {
+  
+  it('Should return an empty array when there are no links', (done) => {
     const noLinksPath = 'Dir1/READMEnolinks.md';
-    const result = await mdLinks(noLinksPath);
-
-    expect(result).toEqual([]);
+    mdLinks(noLinksPath)
+      .then((result) => {
+        expect(result).toEqual([]);
+        done();
+      })
+      .catch((error) => {
+        done(error);
+      });
   });
-
+  
   it('Should return an error when the file is not .md', () => {
     const notMdFile = 'Dir1/Test1.html';
     return expect(mdLinks(notMdFile)).rejects.toEqual("Error: Tu archivo no es Markdown");
