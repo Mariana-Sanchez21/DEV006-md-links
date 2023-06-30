@@ -1,4 +1,4 @@
-const { isAbsolutePath,
+const {
   turnOrKeepPath,
   pathExists,
   isFile,
@@ -44,7 +44,6 @@ function mdLinks(filePath, options) {
     }
   });
 }
-
 
 
   module.exports = mdLinks;
