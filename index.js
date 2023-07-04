@@ -46,13 +46,13 @@ function mdLinks(filePath, options) {
 }
 
 
-// mdLinks(process.argv[2], { validate: false })
-//   .then((result) => {
-//     console.log(result);
-//   })
-//   .catch((error) => {
-//     console.error("Error:", error);
-//   });
+mdLinks(process.argv[2], { validate: false })
+  .then((result) => {
+    console.log(result);
+  })
+  .catch((error) => {
+    console.error("Error:", error);
+  });
 
 
 
