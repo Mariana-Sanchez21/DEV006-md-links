@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
 
-const initialRoute = 'Dir1/README copy 2.md';
+const initialRoute = 'Pruebas/READMEbroken.md';
 
 // Función: ¿Es una ruta absoluta?
 function isAbsolutePath(route) {
@@ -70,10 +70,14 @@ function extractLinksFromFile(content, filePath) {
     const text = match[1];
     const URL = match[2];
     links.push({ href: URL, text: text, file: filePath });
+  
   }
 
   return links;
 }
+
+
+
 
 readFile(absPath)
   .then((content) => {
@@ -124,7 +128,6 @@ function validateLinks(links) {
   return Promise.all(promises); 
 }
 
-  
 
 
 module.exports = {

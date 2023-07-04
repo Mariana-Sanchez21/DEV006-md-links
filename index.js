@@ -10,7 +10,7 @@ const {
 
 
 function mdLinks(filePath, options) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     const absRoute = turnOrKeepPath(filePath);
 
     if (!pathExists(absRoute)) {
@@ -46,4 +46,14 @@ function mdLinks(filePath, options) {
 }
 
 
-  module.exports = mdLinks;
+// mdLinks(process.argv[2], { validate: false })
+//   .then((result) => {
+//     console.log(result);
+//   })
+//   .catch((error) => {
+//     console.error("Error:", error);
+//   });
+
+
+
+module.exports = mdLinks;
