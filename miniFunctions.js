@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
 
-const initialRoute = 'Pruebas/READMEbroken.md';
+const initialRoute ='Pruebas/READMEbroken.md';
 
 // Función: ¿Es una ruta absoluta?
 function isAbsolutePath(route) {
